@@ -20,9 +20,9 @@ and, voilá, a single result
 
 ```16543,GALWAY,Gaillimh,GALWAY,,Td,Bf,N,,62903,LACKAGH BEG,Leacach Beag,,,141115,235495,541079,735522,,,Fiontar,,```
 
-But of course it would`nt be that easy.
+But of course it wouldn`t be that easy.
 
-Using Google Maps as some sort of benchmark (and also to get more familiar with the irish addressing and geography), the address 'Lackagh Beg, Turloughmore, galway' returns some interesting. First, two results indicating a madic facility. But, swapping "Turloughmore" and "Lackagh Beg" returns different locations. Also, even being a "parish", Lackagh Beg won`t show up in the 'parish' file.
+Using Google Maps as some sort of benchmark (and also to get more familiar with the irish addressing and geography), the address 'Lackagh Beg, Turloughmore, galway' return is interesting. First, two results indicating a medic facility. But, swapping "Turloughmore" and "Lackagh Beg" returns different locations. Also, even being a "parish", Lackagh Beg won`t show up in the 'parish' file.
 
 So, some data inconsistencies or understanding would need to be addressed in the code.
 
@@ -37,16 +37,15 @@ A lot of addresses had "road", "lane", some addresses included apostrophes like 
     term = re.sub(terms, '', term)
 ```
 
-This proove very misleading. As the "road" level of the data isn`t available in the datasets, removing this specificiality indicator would lead to mistakes. ```Moneen Road , Castlebar, mayo``` after word removal and using the previous regexp would return ```32053,MAYO,Maigh Eo,MAYO,,Td,Bf,N,,152544,MONEEN,An Móinín,,,114879,332055,514849,832061,,,Fiontar,,```. seems misleading. Castlebar is an actual local area name, present in the 'Centres of Population' and 'Electoral Districts' files, but not in the 'Townsland' file.
+This proved to be very misleading. As the "road" level of the data isn`t available in the datasets, removing this specificiality indicator would lead to mistakes. ```Moneen Road , Castlebar, mayo``` after word removal and using the previous regexp would return ```32053,MAYO,Maigh Eo,MAYO,,Td,Bf,N,,152544,MONEEN,An Móinín,,,114879,332055,514849,832061,,,Fiontar,,```. seems misleading. Castlebar is an actual local area name, present in the 'Centres of Population' and 'Electoral Districts' files, but not in the 'Townsland' file.
 
-Also, by the data and this logic, this logic would return two lines:
+Also, by the data and this logic, this would return two lines:
 
 ```
 32053,MAYO,Maigh Eo,MAYO,,Td,Bf,N,,152544,MONEEN,An Móinín,,,114879,332055,*514849,832061*,,,Fiontar,, 
 (54.23033731886605, -9.30600264016595) - seems wrong, north of Belsallagh
 32054,MAYO,Maigh Eo,MAYO,,Td,Bf,N,,152545,MONEEN,An Móinín,,,82055,281030,482031,781048,,,Fiontar,,
 (53.76566422249623, -9.789349579835276) - seems wrong, east of Louisburgh
-
 ```
 
 A more suitable address would be:
@@ -56,7 +55,7 @@ A more suitable address would be:
 (53.85500048844355, -9.287932803493295)
 ```
 
-Present in the Centres of Population file. It seems that the Townsland file alone would`nt be that good.
+Present in the Centres of Population file. It seems that the Townsland file alone wouldn`t be that good.
 
 Coding is now also pointing to some kind of "scoring" and prevalence searches, rather than exact matches alone. Things are getting interesting.
 
@@ -186,7 +185,7 @@ Townlands_-_OSi_National_Placenames_Gazetteer.csv
 |  11               |  2            |
 ```
 
-This seems much better! Not only the number of missing addresses didn`t changed (somewhat expected), but the matching distribution is much mor concentrated in the lower colision count area, with lower colision counts across the board.
+This seems much better! Not only the number of missing addresses didn`t changed (somewhat expected), but the matching distribution is much more concentrated in the lower colision count area, with lower colision counts across the board.
 
 Does it have qualitative improovements?
 
@@ -205,10 +204,9 @@ Kinnoghty, Ardara, donegal - 'ARDARA', 'DONEGAL' - (54.76760667129787, -8.410494
 
 Bride street, Loughrea, galway - 'LOUGHREA', 'GALWAY' - ok (little to the west of the bridge itself)
 
-Rinnamona, Kilnaboy, clare - 'RINNAMONA', 'CLARE' - (52.98570980016141, -9.04662537946135) - seems ok but interesting, "Kilnaboy" seems to be "Killinaboy" misspelled, I`ll consider a luck guess
+Rinnamona, Kilnaboy, clare - 'RINNAMONA', 'CLARE' - (52.98570980016141, -9.04662537946135) - seems ok but interesting, "Kilnaboy" seems to be "Killinaboy" misspelled, I`ll consider a lucky guess
 
 Cloghers,, Tralee, kerry - 'TRALEE', 'KERRY' - (52.2679974240826, -9.713377780766468) - seems ok, even being "Cloghers" an actual place
-
 ```
 
 Centres_of_Population_-_OSi_National_Placenames_Gazetteer.csv
@@ -237,7 +235,13 @@ That said, it`s time to focus on the second main group, the non-match group. The
 It`s time for Levenshtein! (probably needing to calculate Levenshtein distance not to misspell it too)
 https://en.wikipedia.org/wiki/Levenshtein_distance
 
-Ill try not to compare strings directly, but instead I`ll to a Levenshtein distance comparison by increasing factors (distance < N_factor then equals).
+Ill try not to compare strings directly, but instead I`ll do a Levenshtein distance comparison by increasing factors (distance < N_factor then equals).
+
+L_FACTOR = 2
+| Number of matches | Matches count |
+|  1                |  2557         |
+|  0                |  383          |
+|  2                |  6            |
 
 L_FACTOR = 3
 ```
@@ -246,12 +250,6 @@ L_FACTOR = 3
 |  0                |  302          |
 |  2                |  19           |
 ```
-
-L_FACTOR = 2
-| Number of matches | Matches count |
-|  1                |  2557         |
-|  0                |  383          |
-|  2                |  6            |
 
 A factor of 3 when searching for missing addresses seems a sweetspot.
 Our missing finaly showed up, in a more precise location, right above Killinaboy in google maps (like most of the others Kilnaboy entries):
@@ -297,7 +295,7 @@ In this specific order, to try better results.
 |  9                |  1            |
 ```
 
-This seems to be an imrpovement in acuracy (neets to be better tested!), with the downside of the creation of colision, specialy the higher count ones.
+This seems to be an imrpovement in acuracy (needs to be better tested!), with the downside of the creation of colision, specialy the higher count ones.
 
 This way I could finaly get a result for the use case of the test! Or did I?
 
@@ -311,8 +309,17 @@ This way I could finaly get a result for the use case of the test! Or did I?
    'GEO': (52.8208923823154, -6.868629103264151)}])
 ```
 
-This is equivalent of a 0.00009492 km... but it actualy doesn`t matters. By a mere coincidence, this distance is nigligible only because the centroid of  
+This distance is equivalent of 0.00009492 km... but it actualy doesn`t matters. By a mere coincidence, this distance is nigligible only because the centroid of  
 303,CARLOW,Ceatharlach,CARLOW,,Td,Bf,N,,10306,JOHNSTOWN,,,,277081,176197,__677015,676236__,,,,,
 is close to the one in  
 136,CARLOW,Ceatharlach,CARLOW,,Td,Bf,N,,10137,BENNEKERRY,Binn an Choire,,,276322,174997,__676256,675036__,,,Fiontar,,
 
+* I would like to keep this implementation this way. It seems it brings more bennefits rather than disvantages
+
+### Impoving geocoding quality
+
+Levenshtein is proving useful, but it`s also creating some problems.
+Tolve some isues, I would like to do some important refactorings:
+* Levenshtein should be used to all matches and a distance of 0 must be addressed as an equal exact match
+* Levenshtein should order the match colision in ascending order
+* Geocoder must detail the precision level, diferentiating Centre, Town and County

@@ -23,7 +23,8 @@ def read_townlands():
 
 def cleanup(term):
     term = term.upper()
-    terms = r"[^a-zA-Z0-9,]|CO"
+    term = term.strip()
+    terms = r"[^a-zA-Z0-9,]|^CO "
     term = re.sub(terms, ' ', term, flags=re.I)
     return term.strip()
 
@@ -55,7 +56,6 @@ comparers = [
 def geocode(query):
     query = query.split(',')
     query = [cleanup(item) for item in query]
-
 
     for i in reversed(range(len(query)-1)):
         for comparer in comparers:
