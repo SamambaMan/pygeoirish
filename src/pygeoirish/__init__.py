@@ -1,5 +1,5 @@
 from .geocoder import geocode
 
-__all__ =[
+__all__ = [
     geocode
 ]

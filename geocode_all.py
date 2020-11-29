@@ -16,8 +16,10 @@ def process(line):
 
 with open('addresses_for_task.csv') as file:
     for line, base, result in map(process, file.readlines()):
-        if not line: continue
+        if not line:
+            continue
         result_stats += [len(result)]
         print('%s | %s | %s | %s' % (line, len(result), base, result))
-        
+
+
 print(Counter(result_stats))
