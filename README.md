@@ -1,4 +1,41 @@
-# pygeoirish
+# pygeoirish [![Build Status](https://travis-ci.org/SamambaMan/pygeoirish.svg?branch=main)](https://travis-ci.org/SamambaMan/pygeoirish)
+
+A geocoding tool for irish addresses.  Expect an address in the format 'John Doe, Johnstown, Bennekerry, Co Carlow' and receives a detailed structure, containing a GEO position.
+
+## Usage
+Address may be geocoded usin an API, serving localy, a command line tool, as a python module/function and also a small service available at https://pygeoirish.herokuapp.com/geocode/ .
+
+<details><summary><b>Show instructions</b></summary>
+
+1. Install dependencies
+
+```sh
+   $ pip install -r requirements.txt
+```
+
+2. CLI
+```sh
+   $ python geocoder.py --geocode Marley or Knockduff, St Mullins, carlow
+```
+
+3. REST interface
+Start the web server:
+```sh
+   $ python geocoder.py --serve
+```
+Then query localy (browser accepts address with spaces, for APIs use url encoded):
+```
+http://localhost:8080/geocode/Marley%20or%20Knockduff,%20St%20Mullins,%20carlow
+```
+
+Optionaly, you can use an already exposed interface:
+```
+https://pygeoirish.herokuapp.com/geocode/Marley%20or%20Knockduff,%20St%20Mullins,%20carlow
+```
+
+
+</details>
+
 
 ## Development Process
 
