@@ -3,21 +3,20 @@ from pygeoirish.geocoder import (
     assemble_comparison,
     base_filter
 )
-from pprint import pprint
 
 
 def test_assemble_comparison():
     fixture = {
-        "cdist": 0, 
-        "distance": 0, 
-        "edist": 0, 
-        "equals": True, 
-        "exact": True, 
+        "cdist": 0,
+        "distance": 0,
+        "edist": 0,
+        "equals": True,
+        "exact": True,
         "fullitem": {
-            "County": "Some County", 
+            "County": "Some County",
             "English_Name": "Wicklow"
-        }, 
-        "item_county": "SOME COUNTY", 
+        },
+        "item_county": "SOME COUNTY",
         "item_english_name": "WICKLOW",
         "query_county": "SOME COUNTY",
         "query_english_name": "WICKLOW"
@@ -26,7 +25,7 @@ def test_assemble_comparison():
         'English_Name': 'Wicklow',
         'County': 'Some County'
     }
-    
+
     final = assemble_comparison('WICKLOW', 'SOME COUNTY', item)
 
     dictA_str = json.dumps(final, sort_keys=True)
@@ -37,16 +36,16 @@ def test_assemble_comparison():
 
 def test_assemble_comparison_onedistance_nexac():
     fixture = {
-        "cdist": 1, 
-        "distance": 1, 
-        "edist": 0, 
-        "equals": True, 
-        "exact": False, 
+        "cdist": 1,
+        "distance": 1,
+        "edist": 0,
+        "equals": True,
+        "exact": False,
         "fullitem": {
-            "County": "Some County", 
+            "County": "Some County",
             "English_Name": "Wicklow"
-        }, 
-        "item_county": "SOME COUNTY", 
+        },
+        "item_county": "SOME COUNTY",
         "item_english_name": "WICKLOW",
         "query_county": "SOME COUNTE",
         "query_english_name": "WICKLOW"
@@ -55,7 +54,7 @@ def test_assemble_comparison_onedistance_nexac():
         'English_Name': 'Wicklow',
         'County': 'Some County'
     }
-    
+
     final = assemble_comparison('WICKLOW', 'SOME COUNTE', item)
 
     dictA_str = json.dumps(final, sort_keys=True)
@@ -67,11 +66,11 @@ def test_assemble_comparison_onedistance_nexac():
 def test_base_filter():
     fixture_items = [
         {
-            "County": "Some County", 
+            "County": "Some County",
             "English_Name": "Wicklow"
         },
         {
-            "County": "Rio de Janeiro", 
+            "County": "Rio de Janeiro",
             "English_Name": "Niteroi"
         }
     ]

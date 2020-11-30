@@ -2,8 +2,6 @@ import csv
 import re
 from Levenshtein import distance
 from .itm2utm import itm2geo
-from operator import eq
-from pprint import pprint
 
 
 L_FACTOR = 3
@@ -53,13 +51,16 @@ def assemble_comparison(english_name, county, item):
         compare_result['item_county'], compare_result['query_county']
     )
     compare_result['edist'] = distance(
-        compare_result['item_english_name'], compare_result['query_english_name']
+        compare_result['item_english_name'],
+        compare_result['query_english_name']
     )
     compare_result['equals'] = \
-        compare_result['cdist'] < L_FACTOR and compare_result['edist'] < L_FACTOR
+        compare_result['cdist'] < L_FACTOR and \
+        compare_result['edist'] < L_FACTOR
     compare_result['exact'] = \
         not compare_result['cdist'] and not compare_result['edist']
-    compare_result['distance'] = compare_result['cdist'] + compare_result['edist']
+    compare_result['distance'] = \
+        compare_result['cdist'] + compare_result['edist']
 
     return compare_result
 
@@ -107,9 +108,9 @@ def geocode(query):
             base_filtereds = base_filter(query[i], query[-1], dataset)
 
             filtereds = extract_prefered_addresses(base_filtereds)
-            
+
             if filtereds:
-                
+
                 return (query[i], query[-1]), [
                     {
                         'C': item['fullitem']['County'],
