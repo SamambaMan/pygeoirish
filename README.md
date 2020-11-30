@@ -275,10 +275,12 @@ https://en.wikipedia.org/wiki/Levenshtein_distance
 Ill try not to compare strings directly, but instead I`ll do a Levenshtein distance comparison by increasing factors (distance < N_factor then equals).
 
 L_FACTOR = 2
+```
 | Number of matches | Matches count |
 |  1                |  2557         |
 |  0                |  383          |
 |  2                |  6            |
+```
 
 L_FACTOR = 3
 ```
