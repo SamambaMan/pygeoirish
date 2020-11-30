@@ -3,6 +3,7 @@ import re
 from Levenshtein import distance
 from .itm2utm import itm2geo
 from operator import eq
+from pprint import pprint
 
 
 L_FACTOR = 3
@@ -24,20 +25,6 @@ def read_townlands():
         return list(reader)
 
 
-def lcomp(word, another_word):
-    return distance(word, another_word) < L_FACTOR
-
-
-ds_centres = read_centres()
-ds_townlands = read_townlands()
-comparers = [
-    {'ds': ds_centres, 'comp': eq},
-    {'ds': ds_townlands, 'comp': eq},
-    {'ds': ds_centres, 'comp': lcomp},
-    {'ds': ds_townlands, 'comp': lcomp},
-]
-
-
 def cleanup(term):
     term = term.upper()
     term = term.strip()
@@ -46,16 +33,68 @@ def cleanup(term):
     return term.strip()
 
 
-def base_filter(english_name, county, dataset, comp=eq):
-    return list(
-        filter(
-            lambda item:
-            comp(
-                county,
-                item['County'].upper()
-            ) and comp(english_name, item['English_Name'].upper()),
-            dataset)
+ds_centres = read_centres()
+ds_townlands = read_townlands()
+comparers = [
+    ds_centres,
+    ds_townlands
+]
+
+
+def assemble_comparison(english_name, county, item):
+    compare_result = {
+        'query_english_name': english_name,
+        'query_county': county,
+        'item_english_name': item['English_Name'].upper(),
+        'item_county': item['County'].upper(),
+        'fullitem': item
+    }
+    compare_result['cdist'] = distance(
+        compare_result['item_county'], compare_result['query_county']
     )
+    compare_result['edist'] = distance(
+        compare_result['item_english_name'], compare_result['query_english_name']
+    )
+    compare_result['equals'] = \
+        compare_result['cdist'] < L_FACTOR and compare_result['edist'] < L_FACTOR
+    compare_result['exact'] = \
+        not compare_result['cdist'] and not compare_result['edist']
+    compare_result['distance'] = compare_result['cdist'] + compare_result['edist']
+
+    return compare_result
+
+
+def base_filter(english_name, county, dataset):
+    compare_result = map(
+        lambda item: assemble_comparison(
+            english_name,
+            county,
+            item
+        ),
+        dataset
+    )
+    filter_result = filter(
+        lambda item: item['equals'],
+        compare_result
+    )
+    sorted_result = sorted(
+        filter_result,
+        key=lambda item: item['distance']
+    )
+    return list(sorted_result)
+
+
+def extract_prefered_addresses(filtereds):
+    exact = list(
+        filter(
+            lambda item: item['exact'],
+            filtereds
+        )
+    )
+    if exact:
+        return exact
+
+    return filtereds
 
 
 def geocode(query):
@@ -63,22 +102,23 @@ def geocode(query):
     query = [cleanup(item) for item in query]
 
     for i in reversed(range(len(query) - 1)):
-        for comparer in comparers:
-            dataset = comparer['ds']
-            comp = comparer['comp']
+        for dataset in comparers:
 
-            filtereds = base_filter(query[i], query[-1], dataset, comp)
+            base_filtereds = base_filter(query[i], query[-1], dataset)
 
+            filtereds = extract_prefered_addresses(base_filtereds)
+            
             if filtereds:
+                
                 return (query[i], query[-1]), [
                     {
-                        'C': item['County'],
-                        'E': item['English_Name'],
-                        'ITM_E':item['ITM_E'],
-                        'ITM_N':item['ITM_N'],
+                        'C': item['fullitem']['County'],
+                        'E': item['fullitem']['English_Name'],
+                        'ITM_E':item['fullitem']['ITM_E'],
+                        'ITM_N':item['fullitem']['ITM_N'],
                         'GEO': itm2geo(
-                            float(item['ITM_E']),
-                            float(item['ITM_N'])
+                            float(item['fullitem']['ITM_E']),
+                            float(item['fullitem']['ITM_N'])
                         )
                     } for item in filtereds]
 

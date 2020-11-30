@@ -43,6 +43,12 @@ parser.add_argument(
     help="HTTP server for geocoding"
 )
 parser.add_argument(
+    '--geocodeall',
+    action='store_true',
+    default=False,
+    help="geocode an entire address file to the standard output"
+)
+parser.add_argument(
     '--geocode',
     action='store',
     type=str,
@@ -56,3 +62,5 @@ if args.geocode:
     print(geocode(' '.join(args.geocode)))
 if args.serve:
     serve()
+if args.geocodeall:
+    exploratory()
