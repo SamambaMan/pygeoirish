@@ -1,1 +1,3 @@
-python-Levenshtein
+aiohttp==3.7.3
+argparse
+python-Levenshtein==0.12.0

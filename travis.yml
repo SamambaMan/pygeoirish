@@ -4,7 +4,7 @@ python:
 install:
   - pip install -r requirements-dev.txt
 script:
-  - make test
+  - make format
 notifications:
   email:
     - felipe.gomes.ferreira@gmail.com
