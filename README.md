@@ -33,6 +33,11 @@ Optionaly, you can use an already exposed interface:
 https://pygeoirish.herokuapp.com/geocode/Marley%20or%20Knockduff,%20St%20Mullins,%20carlow
 ```
 
+4. Testing
+```sh
+   $ make format
+   $ make test
+```
 
 </details>
 
