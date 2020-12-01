@@ -367,3 +367,65 @@ Tolve some isues, I would like to do some important refactorings:
 * Levenshtein should be used to all matches and a distance of 0 must be addressed as an equal exact match
 * Levenshtein should order the match colision in ascending order
 * Geocoder must detail the precision level, diferentiating Centre, Town and County
+
+After some debugging and reimplementing using levenshtein only, then ordering by distance (being zero the distance that refers to perfect match), I ended with a data structure like this:
+
+```
+{
+ 'query_english_name': 'rio de janeiro',
+ 'query_county': 'Niteroi',
+ 'item_english_name': 'AGHABEG',
+ 'item_county': 'CARLOW',
+ 'fullitem': {'\ufeffOBJECTID': '4',
+  'County': 'CARLOW',
+  'Contae': 'Ceatharlach',
+  'Local_Government_Area': 'CARLOW',
+  'Limistéar_Rialtas_Áitiúil': '',
+  'Classification': 'Td',
+  'Cineál': 'Bf',
+  'Gaeltacht': 'N',
+  'Town_Classification': '',
+  'ID': '10004',
+  'English_Name': 'AGHABEG',
+  'Irish_Name': '',
+  'Foirm_Ghinideach': '',
+  'Alternative_Name': '',
+  'IG_E': '275455',
+  'IG_N': '157582',
+  'ITM_E': '675389',
+  'ITM_N': '657625',
+  'Irish_Validation': '',
+  'Legislation': '',
+  'Validated_By': '',
+  'Date_': '',
+  'Comment_': ''},
+ 'cdist': 7,
+ 'edist': 14,
+ 'equals': False,
+ 'exact': False,
+ 'distance': 21
+}
+```
+
+```
+| Number of matches | Matches count |
+|  1                |  2850         |     
+|  2                |  54           |
+|  0                |  11           |
+|  3                |  10           |
+|  5                |  5            |
+|  7                |  4            |
+|  4                |  3            |
+|  11               |  3            |
+|  6                |  2            |
+|  8                |  2            |
+|  10               |  1            |
+|  9                |  1            |
+```
+
+The result count was also almost equals to the last one. This is good, the refactoring was successfull and the differences where due the finding of addresses containing ```' or '``` in the English_Naming, meaning two names for the same place, like ```BALLINALEE or SAINTJOHNSTOWN```. This was tricky.
+
+After this fixes I have made a decision: it.s common for geocoding and address search tools, such as google, esri, to retrieve a list of the most probable addresses searched by the user. Or maybe a match'n tied strategy.  
+This task asks for a service that geocodes, but it's not specified a service contract or something like this, so I'm using this in the favor of this implementation.  
+The service will return a list of matching addresses, by the criterias listed above. The order would be a sum of the found distances, ascending. If the user would like only a "give me a best match", he would only need to use the first address. If he would like to search and geocode addresses, considering mispeling, address colision so a list could be quite handy.  
+

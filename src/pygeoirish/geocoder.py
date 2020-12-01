@@ -17,16 +17,33 @@ def read_centres():
         return list(reader)
 
 
-def read_townlands():
+def _read_townlands():
     with open(F_TOWNLANDS) as file:
         reader = csv.DictReader(file)
-        return list(reader)
+        yield from reader
+
+
+def read_townlands():
+    mult = ' or '
+    output = []
+    for item in _read_townlands():
+        if mult in item['English_Name']:
+            words = item['English_Name'].split(mult)
+            new = dict(item)
+            item['English_Name'] = words[0].strip()
+            output += [item]
+            new['English_Name'] = words[1].strip()
+            output += [new]
+        else:
+            output += [item]
+
+    return output
 
 
 def cleanup(term):
     term = term.upper()
     term = term.strip()
-    terms = r"[^a-zA-Z0-9,]|^CO "
+    terms = r"[^a-zA-Z0-9, ]|^CO\.? | PO$"
     term = re.sub(terms, ' ', term, flags=re.I)
     return term.strip()
 
@@ -34,8 +51,8 @@ def cleanup(term):
 ds_centres = read_centres()
 ds_townlands = read_townlands()
 comparers = [
-    ds_centres,
-    ds_townlands
+    (ds_centres, 'centre'),
+    (ds_townlands, 'town'),
 ]
 
 
@@ -98,29 +115,30 @@ def extract_prefered_addresses(filtereds):
     return filtereds
 
 
+def serialize(address_list, level):
+    for item in address_list:
+        item['geo'] = itm2geo(
+            float(item['fullitem']['ITM_E']),
+            float(item['fullitem']['ITM_N'])
+        )
+        item['level'] = level
+
+    return address_list
+
+
 def geocode(query):
     query = query.split(',')
     query = [cleanup(item) for item in query]
 
+    # search for a full address.
     for i in reversed(range(len(query) - 1)):
-        for dataset in comparers:
+        for dataset, level in comparers:
 
             base_filtereds = base_filter(query[i], query[-1], dataset)
 
             filtereds = extract_prefered_addresses(base_filtereds)
 
             if filtereds:
-
-                return (query[i], query[-1]), [
-                    {
-                        'C': item['fullitem']['County'],
-                        'E': item['fullitem']['English_Name'],
-                        'ITM_E':item['fullitem']['ITM_E'],
-                        'ITM_N':item['fullitem']['ITM_N'],
-                        'GEO': itm2geo(
-                            float(item['fullitem']['ITM_E']),
-                            float(item['fullitem']['ITM_N'])
-                        )
-                    } for item in filtereds]
+                return serialize(filtereds, level)
 
     return "", ""

@@ -1,26 +1,21 @@
 import json
+import mock
 from pygeoirish.geocoder import (
     assemble_comparison,
-    base_filter
+    base_filter,
+    read_townlands,
+)
+from .fixtures import (
+    fixture_test_assemble_comparison,
+    fixture_assemble_comparison_onedistance_nexac,
+    fixture_items_base_filter,
+    fixture_expected_base_filter,
+    fixture_read_townlands,
+    fixture_read_townlands_expected
 )
 
 
 def test_assemble_comparison():
-    fixture = {
-        "cdist": 0,
-        "distance": 0,
-        "edist": 0,
-        "equals": True,
-        "exact": True,
-        "fullitem": {
-            "County": "Some County",
-            "English_Name": "Wicklow"
-        },
-        "item_county": "SOME COUNTY",
-        "item_english_name": "WICKLOW",
-        "query_county": "SOME COUNTY",
-        "query_english_name": "WICKLOW"
-    }
     item = {
         'English_Name': 'Wicklow',
         'County': 'Some County'
@@ -29,27 +24,15 @@ def test_assemble_comparison():
     final = assemble_comparison('WICKLOW', 'SOME COUNTY', item)
 
     dictA_str = json.dumps(final, sort_keys=True)
-    dictB_str = json.dumps(fixture, sort_keys=True)
+    dictB_str = json.dumps(
+        fixture_test_assemble_comparison,
+        sort_keys=True
+    )
 
     assert dictA_str == dictB_str
 
 
 def test_assemble_comparison_onedistance_nexac():
-    fixture = {
-        "cdist": 1,
-        "distance": 1,
-        "edist": 0,
-        "equals": True,
-        "exact": False,
-        "fullitem": {
-            "County": "Some County",
-            "English_Name": "Wicklow"
-        },
-        "item_county": "SOME COUNTY",
-        "item_english_name": "WICKLOW",
-        "query_county": "SOME COUNTE",
-        "query_english_name": "WICKLOW"
-    }
     item = {
         'English_Name': 'Wicklow',
         'County': 'Some County'
@@ -58,50 +41,47 @@ def test_assemble_comparison_onedistance_nexac():
     final = assemble_comparison('WICKLOW', 'SOME COUNTE', item)
 
     dictA_str = json.dumps(final, sort_keys=True)
-    dictB_str = json.dumps(fixture, sort_keys=True)
+    dictB_str = json.dumps(
+        fixture_assemble_comparison_onedistance_nexac,
+        sort_keys=True
+    )
 
     assert dictA_str == dictB_str
 
 
 def test_base_filter():
-    fixture_items = [
-        {
-            "County": "Some County",
-            "English_Name": "Wicklow"
-        },
-        {
-            "County": "Rio de Janeiro",
-            "English_Name": "Niteroi"
-        }
-    ]
-
     english_name = 'NITEROI'
     county = 'RIO DE JANEIRO'
 
     result = base_filter(
         english_name,
         county,
-        fixture_items
+        fixture_items_base_filter
     )
 
-    fixture_expected = [
-        {
-            'cdist': 0,
-            'distance': 0,
-            'edist': 0,
-            'equals': True,
-            'exact': True,
-            'fullitem': {
-                'County': 'Rio de Janeiro',
-                'English_Name': 'Niteroi'
-            },
-            'item_county': 'RIO DE JANEIRO',
-            'item_english_name': 'NITEROI',
-            'query_county': 'RIO DE JANEIRO',
-            'query_english_name': 'NITEROI'}
-    ]
-
     dictA_str = json.dumps(result, sort_keys=True)
-    dictB_str = json.dumps(fixture_expected, sort_keys=True)
+    dictB_str = json.dumps(
+        fixture_expected_base_filter,
+        sort_keys=True
+    )
+
+    assert dictA_str == dictB_str
+
+
+@mock.patch(
+    'pygeoirish.geocoder._read_townlands',
+    return_value=fixture_read_townlands
+)
+def test_read_townlands(_rt):
+    result = read_townlands()
+
+    _rt.assert_called_once()
+
+    dictA_str = json.dumps(
+        result, sort_keys=True)
+    dictB_str = json.dumps(
+        fixture_read_townlands_expected,
+        sort_keys=True
+    )
 
     assert dictA_str == dictB_str

@@ -6,21 +6,16 @@ from collections import Counter
 from pygeoirish import geocode, serve
 
 
-def process(line):
-    line = line.strip()
-    if line:
-        return line, *geocode(line)
-    return "", "", ""
-
-
 def exploratory():
     result_stats = []
     with open('addresses_for_task.csv') as file:
-        for line, base, result in map(process, file.readlines()):
+        for line in file.readlines():
+            line = line.strip()
             if not line:
                 continue
+            result = geocode(line)
             result_stats += [len(result)]
-            print('%s | %s | %s | %s' % (line, len(result), base, result))
+            print('%s | %s | %s' % (line, len(result), result))
 
     print(Counter(result_stats))
 
