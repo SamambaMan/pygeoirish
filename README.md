@@ -429,3 +429,52 @@ After this fixes I have made a decision: it.s common for geocoding and address s
 This task asks for a service that geocodes, but it's not specified a service contract or something like this, so I'm using this in the favor of this implementation.  
 The service will return a list of matching addresses, by the criterias listed above. The order would be a sum of the found distances, ascending. If the user would like only a "give me a best match", he would only need to use the first address. If he would like to search and geocode addresses, considering mispeling, address colision so a list could be quite handy.  
 
+This gives an interesting result. A simple attempt, documented in this readme, searching for ```https://pygeoirish.herokuapp.com/geocode/Marley or Knockduff, St Mullins, carlow``` returns the following json:
+
+```
+[
+   {
+      "query_english_name":"ST MULLINS",
+      "query_county":"CARLOW",
+      "item_english_name":"ST. MULLIN'S",
+      "item_county":"CARLOW",
+      "fullitem":{
+         "\ufeffOBJECTID":"520",
+         "County":"CARLOW",
+         "Contae":"Ceatharlach",
+         "Local_Government_Area":"CARLOW",
+         "Limist\u00e9ar_Rialtas_\u00c1iti\u00fail":"",
+         "Classification":"Td",
+         "Cine\u00e1l":"Bf",
+         "Gaeltacht":"N",
+         "Town_Classification":"",
+         "ID":"10523",
+         "English_Name":"St. MULLIN'S",
+         "Irish_Name":"Tigh Moling",
+         "Foirm_Ghinideach":"",
+         "Alternative_Name":"",
+         "IG_E":"272367",
+         "IG_N":"138559",
+         "ITM_E":"672302",
+         "ITM_N":"638606",
+         "Irish_Validation":"",
+         "Legislation":"",
+         "Validated_By":"Fiontar",
+         "Date_":"",
+         "Comment_":""
+      },
+      "cdist":0,
+      "edist":2,
+      "equals":true,
+      "exact":false,
+      "distance":2,
+      "geo":[
+         52.494061883137675,
+         -6.935265814961433
+      ],
+      "level":"town"
+   }
+]
+```
+
+Note that the search term is ```ST MULLINS``` and the geocoder "fixed" by distancing ```ST. MULLIN'S``` in the Towns file, without the need for manual text format and cleaning.
