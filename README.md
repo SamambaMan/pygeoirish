@@ -478,3 +478,23 @@ This gives an interesting result. A simple attempt, documented in this readme, s
 ```
 
 Note that the search term is ```ST MULLINS``` and the geocoder "fixed" by distancing ```ST. MULLIN'S``` in the Towns file, without the need for manual text format and cleaning.
+
+
+## Conclusion
+
+Different geocoders solves search criterias in slightly different aproaches. I have decided to go for the one that gives flexibility in text searching and, at the same time, trying to provide as much acuracy as I could.
+
+
+   * Pros:
+      * Acceptable acuracy
+      * Allows user, both in a view or as a service, or in batch geocoding, choose the best match in the search results
+      * Suports both very flexible queries, mispeling, some level of data inconsistency
+   * Cons:
+      * Won't find addresses wher the user specifies 'inner' towns in the left of the query terms, like the one in the study case ```Johnstown, Bennekerry, Co Carlow```. By the data and my understading of the towns structure I did not find a way to improve this
+      * This strategy may be slower in very big datasets. Scoring the entire database at every search may be performance degrading.
+      * Maybe a different strategy could provide a best matching solution. If so, batch process tha uses this geocoder could be misleaded.
+      * When searching for Conties only, like ```Carlow``` this solution will favor a best exact match for the _Town_ over the _County_. I don't know if this is desirable.
+
+## Possible improvements
+
+Many of the colision cases that included two "towns", being the more specific one at the last of the left of the query, could be untied by doing another search pass that uses the more specific search therm. This could improve the precision and reduce colision. But even this strategy wouldn`t solve the ```Johnstown, Bennekerry, Co Carlow``` case, that I found no way to solve without incurring in errors at the begining, like the Inch beach.
