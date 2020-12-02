@@ -9,6 +9,7 @@ F_CENTRES = ('datasets/Centres_of_Population_-_OSi_'
              'National_Placenames_Gazetteer.csv')
 F_TOWNLANDS = ('datasets/Townlands_-_OSi_'
                'National_Placenames_Gazetteer.csv')
+F_COUNTIES = ('datasets/Counties_-_OSi_National_Placenames_Gazetteer.csv')
 
 
 def read_centres():
@@ -19,6 +20,12 @@ def read_centres():
 
 def _read_townlands():
     with open(F_TOWNLANDS) as file:
+        reader = csv.DictReader(file)
+        yield from reader
+
+
+def read_counties():
+    with open(F_COUNTIES) as file:
         reader = csv.DictReader(file)
         yield from reader
 
@@ -50,9 +57,11 @@ def cleanup(term):
 
 ds_centres = read_centres()
 ds_townlands = read_townlands()
+ds_counties = read_counties()
 comparers = [
     (ds_centres, 'centre'),
     (ds_townlands, 'town'),
+    (ds_counties, 'countie'),
 ]
 
 
@@ -131,7 +140,7 @@ def geocode(query):
     query = [cleanup(item) for item in query]
 
     # search for a full address.
-    for i in reversed(range(len(query) - 1)):
+    for i in reversed(range(len(query))):
         for dataset, level in comparers:
 
             base_filtereds = base_filter(query[i], query[-1], dataset)
