@@ -15,7 +15,7 @@ F_COUNTIES = ('datasets/Counties_-_OSi_National_Placenames_Gazetteer.csv')
 def read_centres():
     with open(F_CENTRES) as file:
         reader = csv.DictReader(file)
-        return list(reader)
+        yield from reader
 
 
 def _read_townlands():
