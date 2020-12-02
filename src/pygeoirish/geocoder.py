@@ -150,4 +150,4 @@ def geocode(query):
             if filtereds:
                 return serialize(filtereds, level)
 
-    return "", ""
+    return []
